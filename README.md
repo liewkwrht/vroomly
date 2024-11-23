@@ -1,3 +1,4 @@
+Vroomly app is car rental application.
 ### How to setup
 1. Enter in terminal: `cd vroomly-app`
 2. Enter in terminal: `npm install`
