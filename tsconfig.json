@@ -3,6 +3,13 @@
   "compilerOptions": {
     "strict": true,
     "module": "esnext",
-    "target": "es2017"
+    "target": "es2017",
+    "baseUrl": "./",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@components/*": ["components/*"],
+      "@screens/*": ["screens/*"],
+      "@constants/*": ["constants/*"]
+    }
   }
 }

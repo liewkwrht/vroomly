@@ -38,25 +38,23 @@ export default function App() {
 
   if (!dbLoaded) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>Loading...</Text>
+      <SafeAreaView>
       </SafeAreaView>
     ); 
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}> {/* Root SafeAreaView */}
-      <StatusBar style="auto" /> {/* Status bar configuration */}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}> 
+      <StatusBar style="auto" /> 
       <NavigationContainer>
         <React.Suspense fallback={
-          <View style={{ flex: 1, backgroundColor: 'red' }}>
-            <Text>Loading...</Text>
+          <View>
           </View>
         }>
           <SQLiteProvider databaseName='database.db' useSuspense>
             <Stack.Navigator
                 initialRouteName="Welcome"
-                screenOptions={{ headerShown: false }} // Disable headers for all screens
+                screenOptions={{ headerShown: false }}
             >
               <Stack.Screen
                 name="Home"
@@ -80,7 +78,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ensures the container stretches to fill the screen
+    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',

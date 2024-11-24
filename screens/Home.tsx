@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, FlatList, TouchableOpacity, Modal } from "react-native";
-import styles from "../constants/styles";
+import styles from "@constants/styles";
 import DatePicker from "react-native-modern-datepicker";
-import CarCard from "../components/CarCard";
+import CarCard from "@components/CarCard";
 import { useSQLiteContext } from "expo-sqlite";
-import Popuprents from '../components/popuprent';
-import colors from '../constants/colors';
+import Popuprents from '@components/popuprent';
+import colors from '@constants/colors';
 interface Car {
     id: number;
+    brand: string;
     model: string;
     color: string;
     image: string;
-    imageUrl: string;
 }
 
 interface Rental {

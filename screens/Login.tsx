@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import styles from '../constants/styles';
+import styles from '@constants/styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -45,22 +45,22 @@ export default function LoginPage({ navigation }: any) {
                 style={styles.textbox} 
                 placeholder="Enter your email"
                 keyboardType="email-address"
-                value={email} // Controlled input
-                onChangeText={setEmail} // Update email state
+                value={email}
+                onChangeText={setEmail}
             />
             <Text style={styles.content}>Password</Text>
             <TextInput 
                 style={styles.textbox} 
                 placeholder="Enter your password"
                 secureTextEntry={true}
-                value={password} // Controlled input
-                onChangeText={setPassword} // Update password state
+                value={password}
+                onChangeText={setPassword}
             />
             <Text style={{ marginBottom: 10 }} />
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.bluebutton}
-                    onPress={handleLogin} // Call handleLogin function
+                    onPress={handleLogin}
                 >
                     <Text style={styles.whitebuttonText}>Continue</Text>
                 </TouchableOpacity>

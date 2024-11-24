@@ -1,14 +1,14 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import BrowseIcon from "../assets/icons/browse_blue.svg"; // Adjusted the path
-import CarRentalIcon from "../assets/icons/car_rental.svg";
-import PersonIcon from "../assets/icons/person_blue.svg";
+import BrowseIcon from "@assets/icons/browse_blue.svg"; // Adjusted the path
+import CarRentalIcon from "@assets/icons/car_rental.svg";
+import PersonIcon from "@assets/icons/person_blue.svg";
 
 // Screens
-import Home from "../screens/Home";
-import MyRentals from "../screens/MyRentals";
-import Profile from "../screens/Profile";
+import Home from "@screens/Home";
+import MyRentals from "@screens/MyRentals";
+import Profile from "@screens/Profile";
 
 const Tab = createBottomTabNavigator();
 
