@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import WelcomePage from "./Welcome";
 
 interface UserData {
     name: string;
@@ -91,6 +92,9 @@ export default function Profile() {
         setIsEditing(true);
         setEditedUser(user);
     };
+    const gosignout= () =>{
+        navigation.navigate(WelcomePage);
+    }
 
     const handleCancelEdit = () => {
         setIsEditing(false);
@@ -161,6 +165,14 @@ export default function Profile() {
                         >
                             <Text style={styles.buttonText}>Edit Profile</Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={styles.Button}
+                            onPress={gosignout}
+                        >
+                            <Text style={styles.buttonText}>Sign Out</Text>
+                        </TouchableOpacity>
+
                     </>
                 ) : (
                     // Edit Mode
@@ -213,6 +225,7 @@ export default function Profile() {
                         </View>
                     </>
                 )}
+
             </View>
         </ScrollView>
     );
