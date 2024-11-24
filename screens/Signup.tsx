@@ -59,7 +59,6 @@ const SignupPage = ({ navigation }: any) => {
             <Text style={styles.content}>Full Name</Text>
             <TextInput 
                 style={styles.textbox} 
-                secureTextEntry={true}
                 value={name}
                 onChangeText={setName}
             /> 
