@@ -6,61 +6,76 @@ const styles = StyleSheet.create({
         flex: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.white,  // Using color from constants
+        backgroundColor: colors.white,
+    },
+    containerlogin:{
+        flex: 1,
+        backgroundColor: colors.lightGray,
+    },
+    rowContainer: {
+        flex: 3,
+        backgroundColor: colors.lightGray,
+    },
+    rowContent: {
+        paddingHorizontal: 20,
+        marginTop: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     title: {
         fontFamily: 'Outfit',
         fontSize: 36,
         fontWeight: 'bold',
-        color: colors.darkGray, // Using color from constants
+        color: colors.darkGray,
     },
     subtitle: {
         fontFamily: 'Outfit',
         fontSize: 24,
-        color: colors.darkGray,     // Using color from constants
+        color: colors.darkGray,
     },
     content: {
         fontFamily: 'Outfit',
         fontSize: 16,
-        color: colors.darkGray, 
-        alignSelf: 'flex-start', 
+        color: colors.darkGray,
+        alignSelf: 'flex-start',
         marginLeft: 50,
-        marginBottom: 8          
+        marginBottom: 8,
     },
     buttonContainer: {
-        fontFamily: "Outfit",
-        flexDirection: 'column',  
+        fontFamily: 'Outfit',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
     },
     bluebutton: {
-        fontFamily: "Outfit",
+        fontFamily: 'Outfit',
         backgroundColor: colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 1,
         borderRadius: 30,
-        marginVertical: 10, 
+        marginVertical: 10,
         width: 158,
         height: 41,
         justifyContent: 'center',
         alignItems: 'center',
     },
     whitebutton: {
-        fontFamily: "Outfit",
-        backgroundColor: colors.white, // White background
-        borderColor: colors.primary,  // Blue border
-        borderWidth: 2,               // Border thickness
+        fontFamily: 'Outfit',
+        backgroundColor: colors.white,
+        borderColor: colors.primary,
+        borderWidth: 2,
         paddingVertical: 10,
         paddingHorizontal: 1,
-        borderRadius: 30,             // Rounded corners
-        marginVertical: 10, 
+        borderRadius: 30,
+        marginVertical: 10,
         width: 158,
         height: 41,
         justifyContent: 'center',
         alignItems: 'center',
     },
     bluebuttonText: {
-        color: colors.primary,        // Blue text
+        color: colors.primary,
         fontSize: 16,
         fontWeight: 'bold',
     },
@@ -70,38 +85,24 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     rentbutton: {
-        fontFamily: "Outfit",
+        fontFamily: 'Outfit',
         backgroundColor: colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
-        justifyContent: "center", // Center text vertically
-        alignItems: "center", // Center text horizontally
-    },
-    
-    textbox: {
-        backgroundColor: colors.white, 
-        paddingVertical: 12, 
-        paddingHorizontal: 15, 
-        borderRadius: 5, 
-        width: 280, 
-        height: 41, 
-        marginBottom: 20, 
-        fontSize: 16, 
-        color: colors.darkGray, 
-        borderWidth: 1,
-        borderColor: colors.darkGray,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     textbox: {
-        backgroundColor: colors.lightGray, 
-        paddingVertical: 12, 
-        paddingHorizontal: 15, 
-        borderRadius: 5, 
-        width: 280, 
-        height: 41, 
-        marginBottom: 20, 
-        fontSize: 16, 
-        color: colors.darkGray, 
+        backgroundColor: colors.lightGray,
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+        width: 280,
+        height: 41,
+        marginBottom: 20,
+        fontSize: 16,
+        color: colors.darkGray,
         borderWidth: 1,
         borderColor: colors.darkGray,
     },
@@ -111,14 +112,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 22,
     },
-    modelView: {
+    carView: { 
         margin: 20,
-        backgroundColor: 'white',
+        backgroundColor: colors.white, 
         borderRadius: 20,
         width: '90%',
         padding: 35,
-        alignItems: 'center', // Fixed typo "certer" to "center"
-        shadowColor: '#000',
+        alignItems: 'center', 
+        shadowColor: colors.black, 
         shadowOffset: {
             width: 0,
             height: 2,
@@ -126,8 +127,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-    }
-    
+    },
 });
 
 export default styles;

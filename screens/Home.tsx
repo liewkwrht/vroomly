@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from "@constants/styles";
-import { View, Text, FlatList, TouchableOpacity, Modal, Alert } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Modal } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import DatePicker from "react-native-modern-datepicker";
 import CarCard from "@components/CarCard";
@@ -34,38 +34,15 @@ export default function Home() {
     
     const db = useSQLiteContext();
 
-    // Single useEffect for fetching user ID
     useEffect(() => {
         const fetchUserId = async () => {
-            try {
-                const id = await AsyncStorage.getItem('userid');
-                if (id) {
-                    setUserId(id);
-                    console.log('Fetched User ID:', id);
-                    
-                    // Verify user exists in database
-                    const users = await db.getAllAsync(
-                        'SELECT * FROM users WHERE id = ?',
-                        [id]
-                    );
-                    
-                    if (users.length === 0) {
-                        console.error('No user found with the given ID.');
-                        Alert.alert('Error', 'User session expired. Please login again.');
-                        await AsyncStorage.removeItem('userid');
-                        navigation.navigate('Login' as never);
-                    }
-                } else {
-                    console.error('No User ID found in AsyncStorage.');
-                    navigation.navigate('Login' as never);
-                }
-            } catch (error) {
-                console.error('Error fetching user ID:', error);
-                Alert.alert('Error', 'Failed to load user data. Please try again.');
-                navigation.navigate('Login' as never);
+            const id = await AsyncStorage.getItem('userid');
+            if (id) {
+                setUserId(id);
+                console.log('Fetched User ID:', id);
             }
         };
-    
+
         fetchUserId();
     }, []);
 
@@ -82,22 +59,17 @@ export default function Home() {
     }, [userId, date]);
 
     async function getAvailableCars(selectedDate: string) {
-        try {
-            const result = await db.getAllAsync(`
-                SELECT * 
-                FROM cars
-                WHERE id NOT IN (
-                    SELECT car_id 
-                    FROM rentals 
-                    WHERE rental_date = ?
-                )
-            `, [selectedDate]);
+        const result = await db.getAllAsync(`
+            SELECT * 
+            FROM cars
+            WHERE id NOT IN (
+                SELECT car_id 
+                FROM rentals 
+                WHERE rental_date = ?
+            )
+        `, [selectedDate]);
 
-            setData(result as Car[]);
-        } catch (error) {
-            console.error('Error fetching available cars:', error);
-            Alert.alert('Error', 'Failed to load available cars.');
-        }
+        setData(result as Car[]);
     }
 
     function handleOnPress() {
@@ -116,44 +88,36 @@ export default function Home() {
     };
 
     async function insertRental(insertrental: Rental) {
-        try {
-            await db.withTransactionAsync(async () => {
-                await db.runAsync(
-                    `INSERT INTO rentals (user_id, car_id, rental_date) VALUES (?, ?, ?)`,
-                    [
-                        insertrental.user_id,
-                        insertrental.car_id,
-                        insertrental.rental_date,
-                    ]
-                );
-            });
-            console.log("Rental inserted successfully!");
-            // Refresh available cars after rental
-            await getAvailableCars(date);
-        } catch (error) {
-            console.error("Error inserting rental:", error);
-            Alert.alert('Error', 'Failed to save rental. Please try again.');
-        }
+        await db.withTransactionAsync(async () => {
+            await db.runAsync(
+                `INSERT INTO rentals (user_id, car_id, rental_date) VALUES (?, ?, ?)`,
+                [
+                    insertrental.user_id,
+                    insertrental.car_id,
+                    insertrental.rental_date,
+                ]
+            );
+        });
+
+        await getAvailableCars(date);
     }
     
     async function handleSaveRent() {
-        if (!userId || !selectedCar || !date) {
-            Alert.alert('Error', 'Missing required information for rental.');
-            return;
-        }
-    
+        if (!userId || !selectedCar || !date) return;
+
         await insertRental({
             user_id: userId,
             car_id: selectedCar.id,
             rental_date: date,
         });
-    
+
         setRentPopupVisible(false);
         setSelectedCar(null);
     }
+    
 
     return (
-        <View style={{ flex: 3, backgroundColor: colors.lightGray}}>
+        <View style={{ flex: 3, backgroundColor: colors.lightGray }}>
             <View
                 style={{
                     paddingHorizontal: 20,
@@ -170,7 +134,7 @@ export default function Home() {
 
                 <Modal animationType="slide" transparent={true} visible={open}>
                     <View style={styles.centeredView}>
-                        <View style={styles.modelView}>
+                        <View style={styles.carView}>
                             <DatePicker
                                 mode="calendar"
                                 minimumDate={formattedToday}
@@ -197,8 +161,8 @@ export default function Home() {
                 </Modal>
             </View>
 
-            <Text style={[styles.subtitle, { textAlign: "center", marginVertical: 10 }]}>
-                {data.length} Cars Available
+            <Text style={[styles.subtitle, { color: colors.green, textAlign: "center", marginVertical: 10 }]}>
+                {data.length} Cars Available 
             </Text>
             <FlatList
                 data={data}
@@ -220,9 +184,13 @@ export default function Home() {
                         <Popuprents
                             car={{
                                 ...selectedCar,
-                                rentalDate: date
+                                rentalDate: date,
                             }}
-                            onConfirm={handleRentCar}
+                            onConfirm={async () => {
+                                await handleSaveRent();
+                                setRentPopupVisible(false); 
+                            }}
+                            onClose={() => setRentPopupVisible(false)} 
                         />
                     </View>
                 </Modal>

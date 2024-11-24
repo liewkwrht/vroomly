@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import styles from '@constants/styles';
+import styles from '../constants/styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -11,11 +11,7 @@ export default function LoginPage({ navigation }: any) {
 
     const handleLogin = async () => {
         try {
-            if (!email || !password) {
-                Alert.alert("Error", "Please enter both email and password");
-                return;
-            }
-
+            // Define the type of result
             type User = { id: number; email: string; password: string }; 
             const result: User[] = await db.getAllAsync(
                 "SELECT * FROM users WHERE email = ? AND password = ?",
@@ -27,23 +23,17 @@ export default function LoginPage({ navigation }: any) {
                 await AsyncStorage.setItem('userid', userId.toString());
                 console.log(`User ID stored: ${userId}`);
                 
-                // Clear the form
-                setEmail("");
-                setPassword("");
-                
-                // Navigate to MainTabs
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'MainTabs' }],
-                });
+                navigation.navigate('MainTabs');
             } else {
-                Alert.alert("Invalid credentials", "Please check your email and password.");
+                // Show an alert if the credentials are invalid
+                Alert.alert("Invalid credentials", "Please try again.");
             }
         } catch (error) {
             console.error("Login error:", error);
-            Alert.alert("Error", "An unexpected error occurred. Please try again.");
+            Alert.alert("Error", "An unexpected error occurred.");
         }
     };
+    
     
 
     return (
@@ -53,22 +43,24 @@ export default function LoginPage({ navigation }: any) {
             <Text style={styles.content}>Email</Text>
             <TextInput 
                 style={styles.textbox} 
+                placeholder="Enter your email"
                 keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
+                value={email} // Controlled input
+                onChangeText={setEmail} // Update email state
             />
             <Text style={styles.content}>Password</Text>
             <TextInput 
                 style={styles.textbox} 
+                placeholder="Enter your password"
                 secureTextEntry={true}
-                value={password}
-                onChangeText={setPassword}
+                value={password} // Controlled input
+                onChangeText={setPassword} // Update password state
             />
             <Text style={{ marginBottom: 10 }} />
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.bluebutton}
-                    onPress={handleLogin}
+                    onPress={handleLogin} // Call handleLogin function
                 >
                     <Text style={styles.whitebuttonText}>Continue</Text>
                 </TouchableOpacity>

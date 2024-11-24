@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 
-const Popuprents = ({ car, onConfirm }) => {
+const Popuprents = ({ car, onConfirm, onClose }) => {
     if (!car) return null; // Safeguard for null or undefined car
 
     return (
         <View style={styles.cardContainer}>
             {/* Close Button */}
-            <TouchableOpacity style={styles.closeButton}>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
 
@@ -15,7 +15,7 @@ const Popuprents = ({ car, onConfirm }) => {
             <Text style={styles.title}>Rent the following car?</Text>
 
             {/* Car Image */}
-            <Image source={{ uri: car.imageUrl }} style={styles.carImage} />
+            <Image source={{ uri: car.image }} style={styles.carImage} />
 
             {/* Car Info */}
             <Text style={styles.carModel}>{car.model}</Text>

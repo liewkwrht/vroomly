@@ -1,96 +1,111 @@
 import React, { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, Text, FlatList, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
-import styles from "../constants/styles";
-import colors from "../constants/colors";
+import CarCard_MyRental from "@components/CarCard_MyRental";
+import styles from "@constants/styles";
+import colors from "@constants/colors";
 
-interface Rental {
+interface Car {
     id: number;
-    car_model: string;
-    rental_date: string;
+    brand: string;
+    model: string;
+    color: string;
+    image: string;
+    rental_date: string; 
 }
 
-export default function MyRentals() {
+export default function MyRental() {
     const navigation = useNavigation();
-    const db = useSQLiteContext();
     const [userId, setUserId] = useState<string | null>(null);
-    const [rentals, setRentals] = useState<Rental[]>([]);
+    const [rentedCars, setRentedCars] = useState<Car[]>([]);
+    const db = useSQLiteContext();
 
-    // Fetch userId from AsyncStorage
     useEffect(() => {
-        const fetchUserId = async () => {
-            try {
-                const id = await AsyncStorage.getItem("userid");
-                if (id) {
-                    setUserId(id);
-                    console.log("Fetched User ID:", id);
-                } else {
-                    console.error("No User ID found in AsyncStorage.");
-                    Alert.alert("Session Expired", "Please log in again.");
-                    navigation.navigate("Login" as never);
-                }
-            } catch (error) {
-                console.error("Error fetching user ID:", error);
-                Alert.alert("Error", "Failed to load user data. Please try again.");
-                navigation.navigate("Login" as never);
+        const fetchUserData = async () => {
+        try {
+            const id = await AsyncStorage.getItem("userid");
+            if (id) {
+            setUserId(id);
+            console.log("Fetched User ID:", id);
+            fetchRentedCars(id);
+            } else {
+            console.error("No User ID found in AsyncStorage.");
+            navigation.navigate("Login" as never);
             }
+        } catch (error) {
+            console.error("Error fetching user ID:", error);
+            Alert.alert("Error", "Failed to load user data. Please try again.");
+            navigation.navigate("Login" as never);
+        }
         };
 
-        fetchUserId();
+        fetchUserData();
     }, []);
 
-    // Fetch rentals for the logged-in user
-    useEffect(() => {
-        if (userId) {
-            fetchUserRentals(userId);
-        }
-    }, [userId]);
-
-    async function fetchUserRentals(userId: string) {
+    const fetchRentedCars = async (user_id: string) => {
         try {
-            const result = await db.getAllAsync<Rental[]>(
-                `SELECT rentals.id, cars.model AS car_model, rentals.rental_date 
-                 FROM rentals 
-                 JOIN cars ON rentals.car_id = cars.id 
-                 WHERE rentals.user_id = ?`,
-                [userId]
-            );
-
-            setRentals(result);
-            console.log("Fetched Rentals:", result);
+        const result = await db.getAllAsync(
+            `
+            SELECT c.*, r.rental_date
+            FROM cars c
+            JOIN rentals r ON c.id = r.car_id
+            WHERE r.user_id = ?
+        `,
+            [user_id]
+        );
+        setRentedCars(result as Car[]);
         } catch (error) {
-            console.error("Error fetching rentals:", error);
-            Alert.alert("Error", "Failed to load your rentals. Please try again.");
+        console.error("Error fetching rented cars:", error);
+        Alert.alert("Error", "Failed to load your rented cars.");
         }
-    }
+    };
+
+    const handleCancelRental = async (carId: number, rentalDate: string) => {
+        Alert.alert(
+        "Cancel Rental",
+        "Are you sure you want to cancel this rental?",
+        [
+            { text: "No", style: "cancel" },
+            {
+            text: "Yes",
+            onPress: async () => {
+                try {
+                await db.runAsync(
+                    "DELETE FROM rentals WHERE car_id = ? AND rental_date = ?",
+                    [carId, rentalDate]
+                );
+                console.log(`Rental for car ID ${carId} canceled.`);
+                // Refresh the rented cars list
+                if (userId) await fetchRentedCars(userId);
+                } catch (error) {
+                console.error("Error canceling rental:", error);
+                Alert.alert("Error", "Failed to cancel the rental.");
+                }
+            },
+            },
+        ]
+        );
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.lightGray }}>
-            <Text style={[styles.title, { marginTop: 20 }]}>My Rentals</Text>
-
-            {rentals.length === 0 ? (
-                <Text style={[styles.subtitle, { textAlign: "center", marginTop: 20 }]}>
-                    No rentals found.
-                </Text>
-            ) : (
-                <FlatList
-                    data={rentals}
-                    keyExtractor={(item) => item.id.toString()}
-                    contentContainerStyle={{ padding: 20 }}
-                    renderItem={({ item }) => (
-                        <View style={styles.card}>
-                            <Text style={styles.content}>
-                                <Text style={styles.bold}>Car Model:</Text> {item.car_model}
-                            </Text>
-                            <Text style={styles.content}>
-                                <Text style={styles.bold}>Rental Date:</Text> {item.rental_date}
-                            </Text>
-                        </View>
-                    )}
-                />
+        <Text style={[styles.subtitle, { textAlign: "center", marginVertical: 10 }]}>
+            {rentedCars.length} Rentals
+        </Text>
+        <FlatList
+            data={rentedCars}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+            renderItem={({ item }) => (
+            <CarCard_MyRental
+                car={item}
+                rentalDate={item.rental_date}
+                onCancel={(carId) => handleCancelRental(carId, item.rental_date)}
+            />
             )}
+        />
         </View>
     );
-}
+    }

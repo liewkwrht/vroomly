@@ -33,8 +33,7 @@ export default function Profile() {
         email: "",
         driver_license_number: ""
     });
-
-    // First useEffect to get userId from AsyncStorage
+    
     useEffect(() => {
         const getUserId = async () => {
             try {
