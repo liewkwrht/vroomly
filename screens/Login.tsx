@@ -11,7 +11,11 @@ export default function LoginPage({ navigation }: any) {
 
     const handleLogin = async () => {
         try {
-            // Define the type of result
+            if (!email || !password) {
+                Alert.alert("Error", "Please enter both email and password");
+                return;
+            }
+
             type User = { id: number; email: string; password: string }; 
             const result: User[] = await db.getAllAsync(
                 "SELECT * FROM users WHERE email = ? AND password = ?",
@@ -23,17 +27,23 @@ export default function LoginPage({ navigation }: any) {
                 await AsyncStorage.setItem('userid', userId.toString());
                 console.log(`User ID stored: ${userId}`);
                 
-                navigation.navigate('MainTabs');
+                // Clear the form
+                setEmail("");
+                setPassword("");
+                
+                // Navigate to MainTabs
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'MainTabs' }],
+                });
             } else {
-                // Show an alert if the credentials are invalid
-                Alert.alert("Invalid credentials", "Please try again.");
+                Alert.alert("Invalid credentials", "Please check your email and password.");
             }
         } catch (error) {
             console.error("Login error:", error);
-            Alert.alert("Error", "An unexpected error occurred.");
+            Alert.alert("Error", "An unexpected error occurred. Please try again.");
         }
     };
-    
     
 
     return (

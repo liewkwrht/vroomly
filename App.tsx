@@ -10,6 +10,7 @@ import Home from './screens/Home';
 import WelcomePage from './screens/Welcome';
 import LoginPage from './screens/Login';
 import SignupPage from './screens/Signup';
+
 import MainTabs from './components/MainTab';
 
 const Stack = createNativeStackNavigator();

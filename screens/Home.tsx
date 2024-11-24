@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, FlatList, TouchableOpacity, Modal } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Modal, Alert } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 import styles from "../constants/styles";
 import DatePicker from "react-native-modern-datepicker";
 import CarCard from "../components/CarCard";
 import { useSQLiteContext } from "expo-sqlite";
 import Popuprents from '../components/popuprent';
 import colors from '../constants/colors';
+
 interface Car {
     id: number;
     model: string;
@@ -23,46 +25,79 @@ interface Rental {
 }
 
 export default function Home() {
+    const navigation = useNavigation();
     const [userId, setUserId] = useState<string | null>(null);
     const [selectedCar, setSelectedCar] = useState<Car | null>(null);
     const [rentPopupVisible, setRentPopupVisible] = useState(false);
+    const [data, setData] = useState<Car[]>([]);
+    const [open, setOpen] = useState(false);
     
     const db = useSQLiteContext();
 
+    // Single useEffect for fetching user ID
     useEffect(() => {
         const fetchUserId = async () => {
-            const id = await AsyncStorage.getItem('userid');
-            setUserId(id);
+            try {
+                const id = await AsyncStorage.getItem('userid');
+                if (id) {
+                    setUserId(id);
+                    console.log('Fetched User ID:', id);
+                    
+                    // Verify user exists in database
+                    const users = await db.getAllAsync(
+                        'SELECT * FROM users WHERE id = ?',
+                        [id]
+                    );
+                    
+                    if (users.length === 0) {
+                        console.error('No user found with the given ID.');
+                        Alert.alert('Error', 'User session expired. Please login again.');
+                        await AsyncStorage.removeItem('userid');
+                        navigation.navigate('Login' as never);
+                    }
+                } else {
+                    console.error('No User ID found in AsyncStorage.');
+                    navigation.navigate('Login' as never);
+                }
+            } catch (error) {
+                console.error('Error fetching user ID:', error);
+                Alert.alert('Error', 'Failed to load user data. Please try again.');
+                navigation.navigate('Login' as never);
+            }
         };
-
+    
         fetchUserId();
     }, []);
 
-    const [data, setData] = React.useState<Car[]>([]);
-    const [open, setOpen] = React.useState(false);
-    
     const today = new Date();
     const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const [date, setDate] = React.useState(formattedToday);
+    const [date, setDate] = useState(formattedToday);
 
-    React.useEffect(() => {
-        db.withTransactionAsync(async () => {
-            await getAvailableCars(date);
-        });
-    }, []);
+    useEffect(() => {
+        if (userId) {
+            db.withTransactionAsync(async () => {
+                await getAvailableCars(date);
+            });
+        }
+    }, [userId, date]);
 
     async function getAvailableCars(selectedDate: string) {
-        const result = await db.getAllAsync(`
-            SELECT * 
-            FROM cars
-            WHERE id NOT IN (
-                SELECT car_id 
-                FROM rentals 
-                WHERE rental_date = ?
-            )
-        `, [selectedDate]);
+        try {
+            const result = await db.getAllAsync(`
+                SELECT * 
+                FROM cars
+                WHERE id NOT IN (
+                    SELECT car_id 
+                    FROM rentals 
+                    WHERE rental_date = ?
+                )
+            `, [selectedDate]);
 
-        setData(result);
+            setData(result);
+        } catch (error) {
+            console.error('Error fetching available cars:', error);
+            Alert.alert('Error', 'Failed to load available cars.');
+        }
     }
 
     function handleOnPress() {
@@ -73,10 +108,6 @@ export default function Home() {
         const formattedDate = selectedDate.replace(/\//g, '-');
         setDate(formattedDate);
         setOpen(false);
-
-        db.withTransactionAsync(async () => {
-            await getAvailableCars(formattedDate);
-        });
     }
 
     const handleRentCar = (car: Car) => {
@@ -84,24 +115,42 @@ export default function Home() {
         setRentPopupVisible(true);
     };
 
-    const handleConfirmRent = async () => {
-        const rental: Rental = {
-            user_id: userId!,
-            car_id: selectedCar!.id,
-            rental_date: date
-        };
-
-        await db.runAsync(`
-            INSERT INTO rentals (user_id, car_id, rental_date)
-            VALUES (?, ?, ?)
-            RETURNING id
-        `, [rental.user_id, rental.car_id, rental.rental_date]);
-
-        await getAvailableCars(date);
-
+    async function insertRental(insertrental: Rental) {
+        try {
+            await db.withTransactionAsync(async () => {
+                await db.runAsync(
+                    `INSERT INTO rentals (user_id, car_id, rental_date) VALUES (?, ?, ?)`,
+                    [
+                        insertrental.user_id,
+                        insertrental.car_id,
+                        insertrental.rental_date,
+                    ]
+                );
+            });
+            console.log("Rental inserted successfully!");
+            // Refresh available cars after rental
+            await getAvailableCars(date);
+        } catch (error) {
+            console.error("Error inserting rental:", error);
+            Alert.alert('Error', 'Failed to save rental. Please try again.');
+        }
+    }
+    
+    async function handleSaveRent() {
+        if (!userId || !selectedCar || !date) {
+            Alert.alert('Error', 'Missing required information for rental.');
+            return;
+        }
+    
+        await insertRental({
+            user_id: userId,
+            car_id: selectedCar.id,
+            rental_date: date,
+        });
+    
         setRentPopupVisible(false);
         setSelectedCar(null);
-    };
+    }
 
     return (
         <View style={{ flex: 3, backgroundColor: colors.lightGray}}>
@@ -173,7 +222,7 @@ export default function Home() {
                                 ...selectedCar,
                                 rentalDate: date
                             }}
-                            onConfirm={handleConfirmRent}
+                            onConfirm={handleRentCar}
                         />
                     </View>
                 </Modal>

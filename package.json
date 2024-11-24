@@ -23,7 +23,8 @@
     "react-native-auto-size-text": "^1.1.1",
     "react-native-modern-datepicker": "^1.0.0-beta.91",
     "react-native-safe-area": "^0.5.1",
-    "react-native-screens": "~4.1.0"
+    "react-native-screens": "~4.1.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
