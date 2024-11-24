@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles from '../constants/styles';
 
 
@@ -11,7 +11,7 @@ const SignupPage = ({ navigation }: any) => {
             <TextInput 
                 style={styles.textbox} 
                 placeholder="Enter your email"
-                keyboardType="email-address" // Corrected to a valid keyboard type
+                keyboardType="email-address" 
             />
             <Text style={styles.content}>Password</Text>
             <TextInput 
@@ -23,13 +23,13 @@ const SignupPage = ({ navigation }: any) => {
             <TextInput 
                 style={styles.textbox} 
                 placeholder="Enter your email"
-                keyboardType="email-address" // Corrected to a valid keyboard type
+                keyboardType="email-address" 
             />
             <Text style={styles.content}>Password</Text>
             <TextInput 
                 style={styles.textbox} 
                 placeholder="Enter your email"
-                keyboardType="email-address" // Corrected to a valid keyboard type
+                keyboardType="email-address" 
             />
             <Text style={styles.content}>Confirm Password</Text>
             <TextInput 

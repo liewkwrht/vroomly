@@ -10,6 +10,7 @@ import Home from './screens/Home';
 import WelcomePage from './screens/Welcome';
 import LoginPage from './screens/Login';
 import SignupPage from './screens/Signup';
+import MainTabs from './components/MainTab';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +69,7 @@ export default function App() {
               <Stack.Screen name="Welcome" component={WelcomePage} />
               <Stack.Screen name="Login" component={LoginPage} />
               <Stack.Screen name="Signup" component={SignupPage} />
+              <Stack.Screen name="MainTabs" component={MainTabs} />
             </Stack.Navigator>
           </SQLiteProvider>
         </React.Suspense>

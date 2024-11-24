@@ -6,7 +6,7 @@ import DatePicker from "react-native-modern-datepicker";
 import CarCard from "../components/CarCard";
 import { useSQLiteContext } from "expo-sqlite";
 import Popuprents from '../components/popuprent';
-
+import colors from '../constants/colors';
 interface Car {
     id: number;
     model: string;
@@ -104,7 +104,7 @@ export default function Home() {
     };
 
     return (
-        <View style={{ flex: 3, backgroundColor: "#F8F8F8" }}>
+        <View style={{ flex: 3, backgroundColor: colors.lightGray}}>
             <View
                 style={{
                     paddingHorizontal: 20,

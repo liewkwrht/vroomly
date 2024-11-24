@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import styles from "../constants/styles"; // Adjust the path as needed
-import imageMap from "../constants/imageMap"; // Import your image mapping
+import styles from "../constants/styles"; 
+import imageMap from "../constants/imageMap";
 
-const CarCard = ({ car, onRent }) => { // Accept onRent as a prop
+const CarCard = ({ car, onRent }) => { 
     return (
         <View
             style={{
@@ -21,7 +21,7 @@ const CarCard = ({ car, onRent }) => { // Accept onRent as a prop
             {/* Car Image */}
             <View style={{ alignItems: "center", marginBottom: 10 }}>
                 <Image
-                    source={imageMap[car.image]} // Get the image path from the mapping
+                    source={imageMap[car.image]}
                     style={{
                         width: "70%",
                         height: 150,
@@ -40,7 +40,7 @@ const CarCard = ({ car, onRent }) => { // Accept onRent as a prop
             </Text>
 
             {/* Rent Button */}
-            <TouchableOpacity style={styles.rentbutton} onPress={() => onRent(car)}> {/* Pass car data */}
+            <TouchableOpacity style={styles.rentbutton} onPress={() => onRent(car)}>
                 <Text style={styles.whitebuttonText}>Rent</Text>
             </TouchableOpacity>
         </View>

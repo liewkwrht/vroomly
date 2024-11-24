@@ -5,26 +5,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
 
 export default function LoginPage({ navigation }: any) {
-    const db = useSQLiteContext(); // Import SQLite context
-    const [email, setEmail] = useState(""); // Initialize email state
-    const [password, setPassword] = useState(""); // Initialize password state
+    const db = useSQLiteContext(); 
+    const [email, setEmail] = useState(""); 
+    const [password, setPassword] = useState(""); 
 
     const handleLogin = async () => {
         try {
             // Define the type of result
-            type User = { id: number; email: string; password: string }; // Adjust fields as per your database structure
+            type User = { id: number; email: string; password: string }; 
             const result: User[] = await db.getAllAsync(
                 "SELECT * FROM users WHERE email = ? AND password = ?",
                 [email, password]
             );
     
             if (result.length > 0) {
-                const userId = result[0].id; // Extract user ID
-                await AsyncStorage.setItem('userid', userId.toString()); // Store in AsyncStorage
-                console.log(`User ID stored: ${userId}`); // Log the stored user ID
-    
-                // Navigate to the Home screen
-                navigation.navigate("Home");
+                const userId = result[0].id; 
+                await AsyncStorage.setItem('userid', userId.toString());
+                console.log(`User ID stored: ${userId}`);
+                
+                navigation.navigate('MainTabs');
             } else {
                 // Show an alert if the credentials are invalid
                 Alert.alert("Invalid credentials", "Please try again.");
