@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import styles from '../constants/styles';
+import styles from '@constants/styles';
 
 
 const SignupPage = ({ navigation }: any) => {
@@ -35,7 +35,7 @@ const SignupPage = ({ navigation }: any) => {
             <TextInput 
                 style={styles.textbox} 
                 placeholder="Enter your email"
-                keyboardType="email-address" // Corrected to a valid keyboard type
+                keyboardType="email-address"
             />
             <View style={styles.buttonContainer}>
                 <TouchableOpacity

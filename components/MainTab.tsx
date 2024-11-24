@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import Home from '../screens/Home';
-import MyRental from '../screens/MyRental';
-import ProfilePage from '../screens/Profile';
-import colors from '../constants/colors';
+import Home from '@screens/Home';
+import MyRental from '@screens/MyRental';
+import ProfilePage from '@screens/Profile';
+import colors from '@constants/colors';
 
 const Tab = createBottomTabNavigator();
 
