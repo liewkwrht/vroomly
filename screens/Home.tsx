@@ -62,7 +62,7 @@ export default function Home() {
             )
         `, [selectedDate]);
 
-        setData(result);
+        setData(result as Car[]);
     }
 
     function handleOnPress() {
