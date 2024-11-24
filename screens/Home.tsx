@@ -8,6 +8,7 @@ import CarCard from "@components/CarCard";
 import { useSQLiteContext } from "expo-sqlite";
 import Popuprents from '@components/popuprent';
 import colors from '@constants/colors';
+
 interface Car {
     id: number;
     brand: string;

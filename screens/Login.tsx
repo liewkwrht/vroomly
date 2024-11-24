@@ -53,7 +53,6 @@ export default function LoginPage({ navigation }: any) {
             <Text style={styles.content}>Email</Text>
             <TextInput 
                 style={styles.textbox} 
-                placeholder="Enter your email"
                 keyboardType="email-address"
                 value={email}
                 onChangeText={setEmail}
@@ -61,7 +60,6 @@ export default function LoginPage({ navigation }: any) {
             <Text style={styles.content}>Password</Text>
             <TextInput 
                 style={styles.textbox} 
-                placeholder="Enter your password"
                 secureTextEntry={true}
                 value={password}
                 onChangeText={setPassword}

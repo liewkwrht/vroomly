@@ -20,12 +20,13 @@ const CarCard = ({ car, onRent }) => {
         >
             {/* Car Image */}
             <View style={{ alignItems: "center", marginBottom: 10 }}>
+              <Text>{car.image}</Text>
                 <Image
-                    source={imageMap[car.image]}
+                    source={{uri: car.image}}
                     style={{
-                        width: "70%",
-                        height: 150,
-                        borderRadius: 10,
+                      width: "70%",
+                      height: 150,
+                      borderRadius: 10,
                     }}
                     resizeMode="cover"
                 />
