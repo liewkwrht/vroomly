@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontFamily: 'Outfit',
-        fontSize: 24,
+        fontSize: 20,
         color: colors.darkGray,
     },
     content: {
@@ -145,7 +145,48 @@ const styles = StyleSheet.create({
     },
     topMargin2: {
         marginTop: 40,
-    }
+    },
+    card: {
+      backgroundColor: 'white',
+      borderRadius: 8,
+      padding: 15,
+      marginBottom: 10,
+      shadowColor: "#000",
+      shadowOffset: {
+          width: 0,
+          height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    cardContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    imageContainer: {
+        width: 64,
+        height: 64,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+        marginRight: 30,
+    },
+    carInfo: {
+        flex: 1,
+    },
+    carTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    carColor: {
+        color: '#666',
+        marginTop: 2,
+    },
+    availabilityDate: {
+        color: '#888',
+        fontSize: 14,
+        marginTop: 4,
+    },
 });
 
 export default styles;

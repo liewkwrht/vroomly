@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, FlatList, TouchableOpacity, Modal, ListRenderItem } from "react-native";
+import { View, Text, SectionList, TouchableOpacity, Modal } from "react-native";
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import DatePicker from "react-native-modern-datepicker";
 import { useSQLiteContext } from "expo-sqlite";
 import styles from "@constants/styles";
 import colors from '@constants/colors';
 import CarCard from "@components/CarCard";
+import CarCard_Reserved from '@components/CarCard_Reserved';
 import Popuprents from '@components/popuprent';
+import { format } from 'date-fns';
 
 interface Car {
     id: number;
@@ -17,6 +19,15 @@ interface Car {
     image: string;
 }
 
+interface UnavailableCar {
+  id: number;
+  brand: string;
+  model: string;
+  color: string;
+  image: string;
+  next_available_date: string;
+}
+
 interface Rental {
     id?: number;
     user_id: string;
@@ -24,8 +35,11 @@ interface Rental {
     rental_date: string;
 }
 
-interface RentalCar extends Car {
-    rentalDate: string;
+interface Section {
+    title: string;
+    color: string;
+    count: number;
+    data: Car[];
 }
 
 export default function Home() {
@@ -37,12 +51,29 @@ export default function Home() {
     const [selectedCar, setSelectedCar] = useState<Car | null>(null);
     const [rentPopupVisible, setRentPopupVisible] = useState(false);
     const [availableCars, setAvailableCars] = useState<Car[]>([]);
+    const [reservedCars, setReservedCars] = useState<UnavailableCar[]>([]);
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     
     // Date handling
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
     const [selectedDate, setSelectedDate] = useState(formattedToday);
+
+    // Prepare sections data
+    const sections: Section[] = [
+        {
+            title: "Cars Available",
+            color: colors.green,
+            count: availableCars.length,
+            data: availableCars
+        },
+        {
+            title: "Cars Reserved",
+            color: colors.red,
+            count: reservedCars.length,
+            data: reservedCars
+        }
+    ];
 
     // Fetch user ID on component mount
     useEffect(() => {
@@ -80,16 +111,51 @@ export default function Home() {
         }
     }, [db]);
 
+    const fetchReservedCars = useCallback(async (inputDate: string) => {
+      try {
+          // Format the input date to ensure consistency
+          const date = format(new Date(inputDate), 'yyyy-MM-dd');
+  
+          // Updated query with explicit date casting
+          const result = await db.getAllAsync<UnavailableCar>(`
+            SELECT 
+                c.*,
+                MIN(CASE 
+                    WHEN DATE(r.rental_date) >= DATE(?) 
+                    AND NOT EXISTS (
+                        SELECT 1 
+                        FROM rentals r2 
+                        WHERE r2.car_id = c.id 
+                        AND DATE(r2.rental_date) = DATE(r.rental_date, '+1 day')
+                    )
+                    THEN DATE(r.rental_date, '+1 day')
+                END) AS next_available_date
+            FROM cars c
+            LEFT JOIN rentals r ON c.id = r.car_id
+            GROUP BY c.id
+            HAVING c.id IN (
+                SELECT car_id 
+                FROM rentals 
+                WHERE rental_date = ?
+            )
+          `, [date, date]);
+          
+    
+            setReservedCars(result);
+      } catch (error) {
+        console.error('Error fetching reserved cars:', error);
+      }
+    }, [db]);
+  
+
     // Refresh data when screen comes into focus
     useFocusEffect(
         useCallback(() => {
             if (userId) {
                 fetchAvailableCars(selectedDate);
+                fetchReservedCars(selectedDate);
             }
-            return () => {
-                // Optional cleanup
-            };
-        }, [userId, selectedDate, fetchAvailableCars])
+        }, [userId, selectedDate, fetchAvailableCars, fetchReservedCars])
     );
 
     const insertRental = useCallback(async (rental: Rental) => {
@@ -101,10 +167,11 @@ export default function Home() {
                 );
             });
             await fetchAvailableCars(selectedDate);
+            await fetchReservedCars(selectedDate);
         } catch (error) {
             console.error('Error inserting rental:', error);
         }
-    }, [db, selectedDate, fetchAvailableCars]);
+    }, [db, selectedDate, fetchAvailableCars, fetchReservedCars]);
 
     // Event handlers
     const handleDatePickerToggle = () => setIsDatePickerOpen(!isDatePickerOpen);
@@ -133,8 +200,22 @@ export default function Home() {
         setSelectedCar(null);
     };
 
+    const renderSectionHeader = ({ section }: { section: Section }) => (
+        <Text style={[styles.subtitle, { color: section.color, textAlign: "center", marginVertical: 10, backgroundColor: colors.lightGray, paddingVertical: 10 }]}>
+            {section.count} {section.title}
+        </Text>
+    );
+
+    const renderItem = ({ item, section }: { item: Car; section: Section }) => (
+        section.title === "Cars Available" ? (
+            <CarCard car={item} onRent={handleRentCar} />
+        ) : (
+            <CarCard_Reserved car={item} />
+        )
+    );
+
     return (
-        <View style={{ flex: 3, backgroundColor: colors.lightGray }}>
+        <View style={{ flex: 1, backgroundColor: colors.lightGray }}>
             <View style={{
                 paddingHorizontal: 20,
                 marginTop: 20,
@@ -142,11 +223,10 @@ export default function Home() {
                 alignItems: "center",
                 justifyContent: "space-between",
             }}>
-                <Text style={[styles.content, styles.topMargin , { marginLeft: 0 }]}>Browse for date:</Text>
+                <Text style={[styles.content, styles.topMargin, { marginLeft: 0 }]}>Browse for date:</Text>
                 <TouchableOpacity onPress={handleDatePickerToggle} style={[styles.whitebutton, { width: 150 }]}>
                     <Text style={{ fontSize: 16, color: "#000", textAlign: "center" }}>{selectedDate}</Text>
                 </TouchableOpacity>
-
                 <Modal animationType="slide" transparent={true} visible={isDatePickerOpen}>
                     <View style={styles.centeredView}>
                         <View style={styles.carView}>
@@ -176,17 +256,13 @@ export default function Home() {
                 </Modal>
             </View>
 
-            <Text style={[styles.subtitle, { color: colors.green, textAlign: "center", marginVertical: 10 }]}>
-                {availableCars.length} Cars Available 
-            </Text>
-            
-            <FlatList
-                data={availableCars}
+            <SectionList
+                sections={sections}
                 keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
                 contentContainerStyle={{ paddingHorizontal: 20 }}
-                renderItem={({ item }) => (
-                    <CarCard car={item} onRent={handleRentCar} />
-                )}
+                stickySectionHeadersEnabled={false}
             />
 
             {selectedCar && (

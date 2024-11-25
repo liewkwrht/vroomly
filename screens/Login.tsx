@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import styles from '../constants/styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
+import { CommonActions } from '@react-navigation/native';
 
 export default function LoginPage({ navigation }: any) {
     const db = useSQLiteContext(); 
@@ -23,7 +24,12 @@ export default function LoginPage({ navigation }: any) {
                 await AsyncStorage.setItem('userid', userId.toString());
                 console.log(`User ID stored: ${userId}`);
                 
-                navigation.navigate('MainTabs');
+                navigation.dispatch(
+                  CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: 'MainTabs' }]
+                  })
+                )
             } else {
                 // Show an alert if the credentials are invalid
                 Alert.alert("Wrong E-mail or Password.", "Please try again.");

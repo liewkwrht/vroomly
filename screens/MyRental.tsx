@@ -115,21 +115,21 @@ interface Car {
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.lightGray }}>
-        <Text style={[styles.subtitle, styles.topMargin2, { textAlign: "center", marginVertical: 10 }]}>
-            {rentedCars.length} Rentals
-        </Text>
-        <FlatList<Car>
-            data={rentedCars}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
-            renderItem={({ item }: { item: Car }) => (
-            <CarCard_MyRental
-          car={item}
-          rentalDate={item.rental_date}
-          onCancel={(carId: number) => handleCancelRental(carId, item.rental_date)}
-            />
-            )}
-        />
+          <Text style={[styles.subtitle, styles.topMargin2, { textAlign: "center", marginVertical: 10 }]}>
+              {rentedCars.length} Rentals
+          </Text>
+          <FlatList<Car>
+              data={rentedCars}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
+              renderItem={({ item }: { item: Car }) => (
+              <CarCard_MyRental
+                car={item}
+                rentalDate={item.rental_date}
+                onCancel={(carId: number) => handleCancelRental(carId, item.rental_date)}
+              />
+              )}
+          />
         </View>
     );
     }

@@ -38,7 +38,7 @@ type TabBarIconProps = {
         component={MyRental}
         options={{
             tabBarIcon: ({ color, size }: TabBarIconProps) => (
-            <Ionicons name="clipboard-outline" size={size} color={color} />
+            <Ionicons name="key-outline" size={size} color={color} />
             ),
         }}
         />

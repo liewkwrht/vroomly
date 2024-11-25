@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import styles from '@constants/styles';
 import { useSQLiteContext } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 
 // interface User {
 //   email: string;
@@ -24,7 +25,6 @@ const SignupPage = ({ navigation }: any) => {
         Alert.alert("Password do not match!", "Please try again.");
       }
       else {
-        console.log('TRYING TO INSE')
         const result =await db.runAsync(
           `INSERT INTO users (
             email,
@@ -41,7 +41,12 @@ const SignupPage = ({ navigation }: any) => {
         )
         // console.log(result.lastInsertRowId, result.changes);
         await AsyncStorage.setItem('userid', result.lastInsertRowId.toString());
-        navigation.navigate('MainTabs');
+        navigation.dispatch(
+          CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'MainTabs' }]
+          })
+        )
       }
     }
   

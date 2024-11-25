@@ -10,7 +10,9 @@ const CarCard = ({ car, onRent }) => {
                 backgroundColor: "#FFFFFF",
                 borderRadius: 10,
                 marginVertical: 10,
-                padding: 15,
+                paddingLeft: 15,
+                paddingRight: 15,
+                paddingBottom: 15,
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
@@ -23,8 +25,8 @@ const CarCard = ({ car, onRent }) => {
                 <Image
                     source={{uri: car.image}}
                     style={{
-                      width: "70%",
-                      height: 150,
+                      width: "80%",
+                      height: 140,
                     }}
                     resizeMode="cover"
                 />

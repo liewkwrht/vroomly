@@ -10,7 +10,7 @@ import {
     ScrollView
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import WelcomePage from "./Welcome";
 import colors from '@constants/colors';
 
@@ -65,12 +65,13 @@ export default function Profile({ navigation }: any) {
 
     const fetchUserData = async () => {
         try {
-            const result = await db.getAllAsync<UserData[]>(
+            const result = await db.getAllAsync<UserData>(
                 `SELECT name, email, driver_license_number 
                  FROM users 
                  WHERE id = ?`,
                 [userId]
             );
+            console.log(result);
 
             if (result && result.length > 0) {
                 console.log('Fetched user data:', result[0]);
@@ -93,7 +94,12 @@ export default function Profile({ navigation }: any) {
         setEditedUser(user);
     };
     const gosignout= () =>{
-        navigation.navigate('Welcome');
+      navigation.dispatch(
+        CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Welcome' }]
+        })
+      )
     }
 
     const handleCancelEdit = () => {
