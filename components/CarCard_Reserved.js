@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import styles from "@constants/styles"; 
-import imageMap from "../constants/imageMap";
 import colors from "@constants/colors";
 
 const CarCard_Reserved = ({ car }) => { 
