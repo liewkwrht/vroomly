@@ -12,6 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import WelcomePage from "./Welcome";
+import colors from '@constants/colors';
 
 interface UserData {
     name: string;
@@ -188,7 +189,7 @@ export default function Profile({ navigation }: any) {
                                 placeholder="Enter your name"
                             />
                         </View>
-                        
+
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Driver License:</Text>
                             <TextInput
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     editButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
         padding: 12,
         borderRadius: 8,
         minWidth: 120,
@@ -286,10 +287,10 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     saveButton: {
-        backgroundColor: '#4CD964',
+        backgroundColor: colors.green,
     },
-    cancelButton: {
-        backgroundColor: '#FF3B30',
+     cancelButton: {
+         backgroundColor: colors.red,
     },
     buttonText: {
         color: '#fff',
