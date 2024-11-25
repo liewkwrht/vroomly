@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from "@constants/styles";
-import { View, Text, FlatList, TouchableOpacity, Modal } from "react-native";
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, FlatList, TouchableOpacity, Modal, ListRenderItem } from "react-native";
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import DatePicker from "react-native-modern-datepicker";
-import CarCard from "@components/CarCard";
 import { useSQLiteContext } from "expo-sqlite";
-import Popuprents from '@components/popuprent';
+import styles from "@constants/styles";
 import colors from '@constants/colors';
+import CarCard from "@components/CarCard";
+import Popuprents from '@components/popuprent';
 
 interface Car {
     id: number;
@@ -24,122 +24,137 @@ interface Rental {
     rental_date: string;
 }
 
+interface RentalCar extends Car {
+    rentalDate: string;
+}
+
 export default function Home() {
     const navigation = useNavigation();
+    const db = useSQLiteContext();
+    
+    // State management
     const [userId, setUserId] = useState<string | null>(null);
     const [selectedCar, setSelectedCar] = useState<Car | null>(null);
     const [rentPopupVisible, setRentPopupVisible] = useState(false);
-    const [data, setData] = useState<Car[]>([]);
-    const [open, setOpen] = useState(false);
+    const [availableCars, setAvailableCars] = useState<Car[]>([]);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     
-    const db = useSQLiteContext();
+    // Date handling
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    const [selectedDate, setSelectedDate] = useState(formattedToday);
 
+    // Fetch user ID on component mount
     useEffect(() => {
         const fetchUserId = async () => {
-            const id = await AsyncStorage.getItem('userid');
-            if (id) {
-                setUserId(id);
-                console.log('Fetched User ID:', id);
+            try {
+                const id = await AsyncStorage.getItem('userid');
+                if (id) {
+                    setUserId(id);
+                    console.log('Fetched User ID:', id);
+                }
+            } catch (error) {
+                console.error('Error fetching user ID:', error);
             }
         };
 
         fetchUserId();
     }, []);
 
-    const today = new Date();
-    const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const [date, setDate] = useState(formattedToday);
-
-    useEffect(() => {
-        if (userId) {
-            db.withTransactionAsync(async () => {
-                await getAvailableCars(date);
-            });
+    // Database operations
+    const fetchAvailableCars = useCallback(async (date: string) => {
+        try {
+            const result = await db.getAllAsync<Car>(`
+                SELECT * 
+                FROM cars
+                WHERE id NOT IN (
+                    SELECT car_id 
+                    FROM rentals 
+                    WHERE rental_date = ?
+                )
+            `, [date]);
+            
+            setAvailableCars(result);
+        } catch (error) {
+            console.error('Error fetching available cars:', error);
         }
-    }, [userId, date]);
+    }, [db]);
 
-    async function getAvailableCars(selectedDate: string) {
-        const result = await db.getAllAsync(`
-            SELECT * 
-            FROM cars
-            WHERE id NOT IN (
-                SELECT car_id 
-                FROM rentals 
-                WHERE rental_date = ?
-            )
-        `, [selectedDate]);
+    // Refresh data when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            if (userId) {
+                fetchAvailableCars(selectedDate);
+            }
+            return () => {
+                // Optional cleanup
+            };
+        }, [userId, selectedDate, fetchAvailableCars])
+    );
 
-        setData(result as Car[]);
-    }
+    const insertRental = useCallback(async (rental: Rental) => {
+        try {
+            await db.withTransactionAsync(async () => {
+                await db.runAsync(
+                    `INSERT INTO rentals (user_id, car_id, rental_date) VALUES (?, ?, ?)`,
+                    [rental.user_id, rental.car_id, rental.rental_date]
+                );
+            });
+            await fetchAvailableCars(selectedDate);
+        } catch (error) {
+            console.error('Error inserting rental:', error);
+        }
+    }, [db, selectedDate, fetchAvailableCars]);
 
-    function handleOnPress() {
-        setOpen(!open);
-    }
+    // Event handlers
+    const handleDatePickerToggle = () => setIsDatePickerOpen(!isDatePickerOpen);
 
-    function handleChange(selectedDate: string) {
-        const formattedDate = selectedDate.replace(/\//g, '-');
-        setDate(formattedDate);
-        setOpen(false);
-    }
+    const handleDateChange = (newDate: string) => {
+        const formattedDate = newDate.replace(/\//g, '-');
+        setSelectedDate(formattedDate);
+        setIsDatePickerOpen(false);
+    };
 
     const handleRentCar = (car: Car) => {
         setSelectedCar(car);
         setRentPopupVisible(true);
     };
 
-    async function insertRental(insertrental: Rental) {
-        await db.withTransactionAsync(async () => {
-            await db.runAsync(
-                `INSERT INTO rentals (user_id, car_id, rental_date) VALUES (?, ?, ?)`,
-                [
-                    insertrental.user_id,
-                    insertrental.car_id,
-                    insertrental.rental_date,
-                ]
-            );
-        });
-
-        await getAvailableCars(date);
-    }
-    
-    async function handleSaveRent() {
-        if (!userId || !selectedCar || !date) return;
+    const handleSaveRent = async () => {
+        if (!userId || !selectedCar || !selectedDate) return;
 
         await insertRental({
             user_id: userId,
             car_id: selectedCar.id,
-            rental_date: date,
+            rental_date: selectedDate,
         });
 
         setRentPopupVisible(false);
         setSelectedCar(null);
-    }
-    
+    };
 
     return (
         <View style={{ flex: 3, backgroundColor: colors.lightGray }}>
-            <View
-                style={{
-                    paddingHorizontal: 20,
-                    marginTop: 20,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}
-            >
-                <Text style={[styles.content, { marginLeft: 0 }]}>Browse for date:</Text>
-                <TouchableOpacity onPress={handleOnPress} style={[styles.textbox, { width: 150 }]}>
-                    <Text style={{ fontSize: 16, color: "#000", textAlign: "center" }}>{date}</Text>
+            <View style={{
+                paddingHorizontal: 20,
+                marginTop: 20,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+            }}>
+                <Text style={[styles.content, styles.topMargin , { marginLeft: 0 }]}>Browse for date:</Text>
+                <TouchableOpacity onPress={handleDatePickerToggle} style={[styles.whitebutton, { width: 150 }]}>
+                    <Text style={{ fontSize: 16, color: "#000", textAlign: "center" }}>{selectedDate}</Text>
                 </TouchableOpacity>
 
-                <Modal animationType="slide" transparent={true} visible={open}>
+                <Modal animationType="slide" transparent={true} visible={isDatePickerOpen}>
                     <View style={styles.centeredView}>
                         <View style={styles.carView}>
                             <DatePicker
                                 mode="calendar"
                                 minimumDate={formattedToday}
-                                selected={date}
-                                onDateChange={handleChange}
+                                selected={selectedDate}
+                                onDateChange={handleDateChange}
                                 options={{
                                     defaultFont: 'System',
                                     headerFont: 'System',
@@ -151,7 +166,7 @@ export default function Home() {
                                 }}
                             />
                             <TouchableOpacity
-                                onPress={handleOnPress}
+                                onPress={handleDatePickerToggle}
                                 style={[styles.bluebutton, { marginTop: 20 }]}
                             >
                                 <Text style={styles.whitebuttonText}>Close</Text>
@@ -162,10 +177,11 @@ export default function Home() {
             </View>
 
             <Text style={[styles.subtitle, { color: colors.green, textAlign: "center", marginVertical: 10 }]}>
-                {data.length} Cars Available 
+                {availableCars.length} Cars Available 
             </Text>
+            
             <FlatList
-                data={data}
+                data={availableCars}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{ paddingHorizontal: 20 }}
                 renderItem={({ item }) => (
@@ -184,13 +200,13 @@ export default function Home() {
                         <Popuprents
                             car={{
                                 ...selectedCar,
-                                rentalDate: date,
+                                rentalDate: selectedDate,
                             }}
-                            onConfirm={async () => {
-                                await handleSaveRent();
-                                setRentPopupVisible(false); 
+                            onConfirm={handleSaveRent}
+                            onClose={() => {
+                                setRentPopupVisible(false);
+                                setSelectedCar(null);
                             }}
-                            onClose={() => setRentPopupVisible(false)} 
                         />
                     </View>
                 </Modal>

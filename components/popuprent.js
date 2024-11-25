@@ -18,7 +18,7 @@ const Popuprents = ({ car, onConfirm, onClose }) => {
             <Image source={{ uri: car.image }} style={styles.carImage} />
 
             {/* Car Info */}
-            <Text style={styles.carModel}>{car.model}</Text>
+            <Text style={styles.carModel}>{car.brand} {car.model}</Text>
             <Text style={styles.carColor}>({car.color})</Text>
 
             {/* Rental Date */}

@@ -1,8 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '@constants/colors';
 import styles from '@constants/styles';
+import { Image } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite';
+
 const WelcomePage = ({ navigation }: any) => {
+
+    const db = useSQLiteContext(); 
+
+    const preloadImages = async () => {
+
+      type CarImageURI = { image: string; }; 
+      const result: CarImageURI[] = await db.getAllAsync(
+          "SELECT image FROM cars"
+      );
+
+      const uris = result.map((car) => car.image);
+
+      for (const uri of uris) {
+        console.log(`Preloading image: ${uri}`);
+      } 
+
+      const cachePromises = uris.map((uri) => Image.prefetch(uri));
+      await Promise.all(cachePromises);
+    };
+
+    useEffect(() => {
+      const loadAssets = async () => {
+        await preloadImages();
+      };
+      loadAssets();
+    }, []);
+
     return (
         <View style={styles.container}>
             <Text style={style.band}>vroomly</Text>

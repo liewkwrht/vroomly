@@ -26,7 +26,7 @@ export default function LoginPage({ navigation }: any) {
                 navigation.navigate('MainTabs');
             } else {
                 // Show an alert if the credentials are invalid
-                Alert.alert("Invalid credentials", "Please try again.");
+                Alert.alert("Wrong E-mail or Password.", "Please try again.");
             }
         } catch (error) {
             console.error("Login error:", error);

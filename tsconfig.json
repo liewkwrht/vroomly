@@ -1,15 +1,23 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "module": "esnext",
     "target": "es2017",
     "baseUrl": "./",
     "paths": {
-      "@assets/*": ["assets/*"],
-      "@components/*": ["components/*"],
-      "@screens/*": ["screens/*"],
-      "@constants/*": ["constants/*"]
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@screens/*": [
+        "screens/*"
+      ],
+      "@constants/*": [
+        "constants/*"
+      ]
     }
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import CarCard_MyRental from "@components/CarCard_MyRental";
 import styles from "@constants/styles";
@@ -16,11 +16,35 @@ interface Car {
     rental_date: string; 
 }
 
-export default function MyRental() {
+  export default function MyRental() {
     const navigation = useNavigation();
     const [userId, setUserId] = useState<string | null>(null);
     const [rentedCars, setRentedCars] = useState<Car[]>([]);
     const db = useSQLiteContext();
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchUserData = async () => {
+                try {
+                    const id = await AsyncStorage.getItem("userid");
+                    if (id) {
+                        setUserId(id);
+                        console.log("Fetched User ID:", id);
+                        fetchRentedCars(id);
+                    } else {
+                        console.error("No User ID found in AsyncStorage.");
+                        navigation.navigate("Login" as never);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user ID:", error);
+                    Alert.alert("Error", "Failed to load user data. Please try again.");
+                    navigation.navigate("Login" as never);
+                }
+            };
+
+            fetchUserData();
+        }, [])
+    );
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -91,18 +115,18 @@ export default function MyRental() {
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.lightGray }}>
-        <Text style={[styles.subtitle, { textAlign: "center", marginVertical: 10 }]}>
+        <Text style={[styles.subtitle, styles.topMargin2, { textAlign: "center", marginVertical: 10 }]}>
             {rentedCars.length} Rentals
         </Text>
-        <FlatList
+        <FlatList<Car>
             data={rentedCars}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingHorizontal: 20 }}
-            renderItem={({ item }) => (
+            renderItem={({ item }: { item: Car }) => (
             <CarCard_MyRental
-                car={item}
-                rentalDate={item.rental_date}
-                onCancel={(carId) => handleCancelRental(carId, item.rental_date)}
+          car={item}
+          rentalDate={item.rental_date}
+          onCancel={(carId: number) => handleCancelRental(carId, item.rental_date)}
             />
             )}
         />

@@ -20,23 +20,21 @@ const CarCard = ({ car, onRent }) => {
         >
             {/* Car Image */}
             <View style={{ alignItems: "center", marginBottom: 10 }}>
-              <Text>{car.image}</Text>
                 <Image
                     source={{uri: car.image}}
                     style={{
                       width: "70%",
                       height: 150,
-                      borderRadius: 10,
                     }}
                     resizeMode="cover"
                 />
             </View>
 
             {/* Car Info */}
-            <Text style={[styles.subtitle, { textAlign: "left", marginBottom: 5 }]}>
-                {car.model}
+            <Text style={[styles.subtitle, { textAlign: "left", marginBottom: 5, fontWeight: 700 }]}>
+                {car.brand} {car.model}
             </Text>
-            <Text style={[styles.content, { textAlign: "left", marginBottom: 10 }]}>
+            <Text style={[styles.content2, { textAlign: "left", marginBottom: 10 }]}>
                 ({car.color})
             </Text>
 

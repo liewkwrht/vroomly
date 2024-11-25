@@ -10,8 +10,13 @@ import Home from './screens/Home';
 import WelcomePage from './screens/Welcome';
 import LoginPage from './screens/Login';
 import SignupPage from './screens/Signup';
-
 import MainTabs from './components/MainTab';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+    'Support for defaultProps will be removed',
+    'Encountered two children with the same key',
+]);
 
 const Stack = createNativeStackNavigator();
 
@@ -45,7 +50,7 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}> 
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} > 
       <StatusBar style="auto" /> 
       <NavigationContainer>
         <React.Suspense fallback={

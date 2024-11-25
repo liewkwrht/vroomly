@@ -19,8 +19,7 @@ interface UserData {
     driver_license_number: string;
 }
 
-export default function Profile() {
-    const navigation = useNavigation();
+export default function Profile({ navigation }: any) {
     const db = useSQLiteContext();
     const [user, setUser] = useState<UserData>({ 
         name: "", 
@@ -93,7 +92,7 @@ export default function Profile() {
         setEditedUser(user);
     };
     const gosignout= () =>{
-        navigation.navigate(WelcomePage);
+        navigation.navigate('Welcome');
     }
 
     const handleCancelEdit = () => {
@@ -109,13 +108,6 @@ export default function Profile() {
                 return;
             }
 
-            // Email format validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(editedUser.email)) {
-                Alert.alert('Error', 'Please enter a valid email address');
-                return;
-            }
-
             await db.withTransactionAsync(async () => {
                 await db.runAsync(
                     `UPDATE users 
@@ -127,7 +119,6 @@ export default function Profile() {
 
             setUser(editedUser);
             setIsEditing(false);
-            Alert.alert('Success', 'Profile updated successfully');
         } catch (error) {
             console.error('Error updating user data:', error);
             Alert.alert('Error', 'Failed to update profile');
@@ -137,19 +128,19 @@ export default function Profile() {
     return (
         <ScrollView style={styles.scrollView}>
             <View style={styles.container}>
-                <Text style={styles.title}>Profile</Text>
+                <Text style={[styles.title, {marginTop: 20}]}>Profile</Text>
 
                 {!isEditing ? (
                     // View Mode
                     <>
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Name:</Text>
-                            <Text style={styles.infoText}>{user.name || 'Loading...'}</Text>
+                            <Text style={styles.sectionTitle}>Email:</Text>
+                            <Text style={styles.infoText}>{user.email || 'Loading...'}</Text>
                         </View>
 
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Email:</Text>
-                            <Text style={styles.infoText}>{user.email || 'Loading...'}</Text>
+                            <Text style={styles.sectionTitle}>Name:</Text>
+                            <Text style={styles.infoText}>{user.name || 'Loading...'}</Text>
                         </View>
 
                         <View style={styles.section}>
@@ -160,14 +151,14 @@ export default function Profile() {
                         </View>
 
                         <TouchableOpacity 
-                            style={styles.editButton}
+                            style={[styles.editButton, {marginBottom: 20}]}
                             onPress={handleStartEdit}
                         >
                             <Text style={styles.buttonText}>Edit Profile</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
-                            style={styles.Button}
+                            style={[styles.button, styles.cancelButton]}
                             onPress={gosignout}
                         >
                             <Text style={styles.buttonText}>Sign Out</Text>
@@ -177,16 +168,6 @@ export default function Profile() {
                 ) : (
                     // Edit Mode
                     <>
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Name:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editedUser.name}
-                                onChangeText={(text) => setEditedUser({...editedUser, name: text})}
-                                placeholder="Enter your name"
-                            />
-                        </View>
-
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Email:</Text>
                             <TextInput
@@ -198,6 +179,16 @@ export default function Profile() {
                             />
                         </View>
 
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Name:</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={editedUser.name}
+                                onChangeText={(text) => setEditedUser({...editedUser, name: text})}
+                                placeholder="Enter your name"
+                            />
+                        </View>
+                        
                         <View style={styles.section}>
                             <Text style={styles.sectionTitle}>Driver License:</Text>
                             <TextInput

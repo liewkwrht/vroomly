@@ -31,21 +31,21 @@ const CarCard_MyRental = ({ car, rentalDate, onCancel }) => {
             </View>
 
             {/* Car Info */}
-            <Text style={[styles.subtitle, { textAlign: "left", marginBottom: 5 }]}>
-                {car.model}
+            <Text style={[styles.subtitle, { textAlign: "left", marginBottom: 5, fontWeight: 700 }]}>
+                {car.brand} {car.model}
             </Text>
-            <Text style={[styles.content, { textAlign: "left", marginBottom: 10 }]}>
+            <Text style={[styles.content2, { textAlign: "left", marginBottom: 10 }]}>
                 ({car.color})
             </Text>
 
             {/* Rental Date */}
-            <Text style={[styles.content, { textAlign: "left", marginBottom: 10 }]}>
+            <Text style={[styles.content2, { textAlign: "left", marginBottom: 10 }]}>
                 Rental date: {rentalDate}
             </Text>
 
             {/* Cancel Button */}
             <TouchableOpacity
-                style={styles.rentbutton} // Reuse rentbutton style for consistency
+                style={styles.cancelbutton} // Reuse rentbutton style for consistency
                 onPress={() => onCancel(car.id)}
             >
                 <Text style={styles.whitebuttonText}>Cancel</Text>

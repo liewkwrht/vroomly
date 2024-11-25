@@ -42,6 +42,13 @@ const styles = StyleSheet.create({
         marginLeft: 50,
         marginBottom: 8,
     },
+    content2: {
+      fontFamily: 'Outfit',
+      fontSize: 16,
+      color: colors.darkGray,
+      alignSelf: 'flex-start',
+      marginBottom: 8,
+    },
     buttonContainer: {
         fontFamily: 'Outfit',
         flexDirection: 'column',
@@ -51,8 +58,6 @@ const styles = StyleSheet.create({
     bluebutton: {
         fontFamily: 'Outfit',
         backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 1,
         borderRadius: 30,
         marginVertical: 10,
         width: 158,
@@ -65,8 +70,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         borderColor: colors.primary,
         borderWidth: 2,
-        paddingVertical: 10,
-        paddingHorizontal: 1,
         borderRadius: 30,
         marginVertical: 10,
         width: 158,
@@ -92,6 +95,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    cancelbutton: {
+      fontFamily: 'Outfit',
+      backgroundColor: colors.red,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     textbox: {
         backgroundColor: colors.lightGray,
@@ -128,6 +140,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
+    topMargin: {
+        marginTop: 20,
+    },
+    topMargin2: {
+        marginTop: 40,
+    }
 });
 
 export default styles;
